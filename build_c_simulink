@@ -1,0 +1,38 @@
+template="simulink"
+code="*_rtw"
+dir="Object_dir"
+name="Wind_songweiwei"
+
+
+mkdir $dir
+
+cp -r simulink/makefile $dir
+cp -r simulink/include $dir
+cp -r simulink/html $dir
+mkdir $dir/src 
+
+cp $code/*.c $dir/src
+cp $code/*.h $dir/src
+
+cp $template/src/rt_printf.c $dir/src
+cp $template/src/rt_matrx.c $dir/src
+
+ 
+cp $dir/src/$name.c $dir/src/$name"_backup.c"  
+cp $dir/src/$name.h $dir/src/$name"_backup.h"  
+cp $dir/makefile    $dir/makefile_backup  
+
+LineNum=$(sed -n '/_private.h/=' $dir/src/$name"_backup.c")
+echo $LineNum
+
+sed "$LineNum a #include \"sfcn_bridge.h\" " $dir/src/$name"_backup.c" > $dir/src/$name.c  
+
+
+LineNumh=$(sed -n '/_types.h/=' $dir/src/$name"_backup.h")
+sed "$LineNumh a #include \"sfcn_bridge.h\" " $dir/src/$name"_backup.h" > $dir/src/$name.h  
+
+
+sed "s/Diesel_DER2/$name/" $dir/makefile_backup > $dir/makefile
+
+cd $dir
+make
